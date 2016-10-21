@@ -6,6 +6,8 @@
 }(this, function (exports) { 'use strict';
 
   function tree_add(d) {
+    console.log(this._x.call(null, d));
+    console.log(+this._x.call(null, d));
     var x = +this._x.call(null, d),
         y = +this._y.call(null, d);
     return add(this.cover(x, y), x, y, d);
@@ -47,10 +49,11 @@
 
     // Otherwise, split the leaf node until the old and new point are separated.
     do {
-      parent = parent ? parent[i] = new Array(4) : tree._root = new Array(4);
-      if (right = x >= (xm = (x0 + x1) / 2)) x0 = xm; else x1 = xm;
+      parent = parent ? parent[i] = new Array(5) : tree._root = new Array(5);
+      if (right  = x >= (xm = (x0 + x1) / 2)) x0 = xm; else x1 = xm;
       if (bottom = y >= (ym = (y0 + y1) / 2)) y0 = ym; else y1 = ym;
     } while ((i = bottom << 1 | right) === (j = (yp >= ym) << 1 | (xp >= xm)));
+    
     return parent[j] = node, parent[i] = leaf, tree;
   }
 
@@ -60,8 +63,8 @@
         y,
         xz = new Array(n),
         yz = new Array(n),
-        x0 = Infinity,
-        y0 = Infinity,
+        x0 =  Infinity,
+        y0 =  Infinity,
         x1 = -Infinity,
         y1 = -Infinity;
 
@@ -116,22 +119,22 @@
 
       switch (i = (y < (y0 + y1) / 2) << 1 | (x < (x0 + x1) / 2)) {
         case 0: {
-          do parent = new Array(4), parent[i] = node, node = parent;
+          do parent = new Array(5), parent[i] = node, node = parent;
           while (z *= 2, x1 = x0 + z, y1 = y0 + z, x > x1 || y > y1);
           break;
         }
         case 1: {
-          do parent = new Array(4), parent[i] = node, node = parent;
+          do parent = new Array(5), parent[i] = node, node = parent;
           while (z *= 2, x0 = x1 - z, y1 = y0 + z, x0 > x || y > y1);
           break;
         }
         case 2: {
-          do parent = new Array(4), parent[i] = node, node = parent;
+          do parent = new Array(5), parent[i] = node, node = parent;
           while (z *= 2, x1 = x0 + z, y0 = y1 - z, x > x1 || y0 > y);
           break;
         }
         case 3: {
-          do parent = new Array(4), parent[i] = node, node = parent;
+          do parent = new Array(5), parent[i] = node, node = parent;
           while (z *= 2, x0 = x1 - z, y0 = y1 - z, x0 > x || y0 > y);
           break;
         }
@@ -400,11 +403,11 @@
 
     if (!node.length) return copy._root = leaf_copy(node), copy;
 
-    nodes = [{source: node, target: copy._root = new Array(4)}];
+    nodes = [{source: node, target: copy._root = new Array(5)}];
     while (node = nodes.pop()) {
       for (var i = 0; i < 4; ++i) {
         if (child = node.source[i]) {
-          if (child.length) nodes.push({source: child, target: node.target[i] = new Array(4)});
+          if (child.length) nodes.push({source: child, target: node.target[i] = new Array(5)});
           else node.target[i] = leaf_copy(child);
         }
       }
