@@ -98,23 +98,30 @@ svg.selectAll(".node")
 // var avg = sum / times.length;
 
 function update(node, x0, y0, x1, y1){
-  var data0, data1, data2, data3, data = node.data;
-  console.log(node);
-  console.log(x0 + " " + y0 + " " + x1 + " " + y1);
-  console.log(node.data);
-  console.log("----");
-
-  var _data = new Array(node.data.length).fill(0);
+  var new_data;
   var count = 0;
-  if (node.length){
-    if (child = node[0]) {data0 = child.data; count ++; } else {data0 = _data;}
-    if (child = node[1]) {data1 = child.data; count ++; } else {data1 = _data;}
-    if (child = node[2]) {data2 = child.data; count ++; } else {data2 = _data;}
-    if (child = node[3]) {data3 = child.data; count ++; } else {data3 = _data;}
-    for (var i = 2; i < data0.length; i++){
-      data[i] = [data0[i] + data1[i] + data2[i] + data3[i]]/count;
+
+  // loop on children
+  for(var i = 0; i < 4; i++) {
+    // Will be false for leaves as they are not array
+    if(node[i]) {
+      count ++;
+      // lazy init of new_data
+      if(!new_data)
+        new_data = new Array(node[i].data.length).fill(0);
+
+      // accumulate children data (x, y, value)
+      for(var j = 0; j < new_data.length; j++) {
+        new_data[j] += node[i].data[j];
+      }
     }
-    node.data = data;
+  }
+  if(count) {
+    // assuming that data[0] and data[1] are the coordinates
+    // of the points, so we compute the mean
+    new_data[0] /= count;
+    new_data[1] /= count;
+    node.data = new_data;
   }
 }
 
