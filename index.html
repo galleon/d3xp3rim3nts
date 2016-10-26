@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Quadtree</title>
+<style>
+
+.point {
+  fill: #000;
+  fill-opacity: 0.4;
+}
+
+.point--scanned {
+  fill: orange;
+  fill-opacity: 1;
+  stroke: orange;
+  stroke-width: 3px;
+}
+
+.point--selected {
+  fill: red;
+  fill-opacity: 1;
+  stroke: red;
+  stroke-width: 5px;
+}
+
+.node {
+  fill: none;
+  stroke: #ccc;
+  shape-rendering: crispEdges;
+}
+
+</style>
+<body>
+  <div id='map'></div>
+  <div>
+    <label for="nVel">
+      Quadtree level = <span id="goal-value">150</span>
+      <input style="width: 200px;" type="range" min="0" max="150" id="goal" value="150" step='1'>
+    </label>
+  </div>
+</body>
+<script src="http://0.0.0.0:8000/d3-quadtree.v1.js"></script>
+<script src="https://d3js.org/d3-selection.v1.min.js"></script>
+<script src="https://d3js.org/d3-array.v1.min.js"></script>
+<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+<script src="https://d3js.org/d3-ease.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+<script src="https://d3js.org/d3-timer.v1.min.js"></script>
+<script src="https://d3js.org/d3-selection.v1.min.js"></script>
+<script src="https://d3js.org/d3-transition.v1.min.js"></script>
+<script src="https://d3js.org/d3-drag.v1.min.js"></script>
+<script src="https://d3js.org/d3-brush.v1.min.js"></script>
+<script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+<script src="app.js"></script>
