@@ -15,7 +15,7 @@ var svg = d3.select("#map").append("svg")
 var random = Math.random, data = d3.range(2500).map(function() { return [random() * width, random() * height]; });
 */
 var data = d3.range(500).map(function(value){
-  return[value, Math.abs(Math.round(250 + 220*Math.sin(Math.PI*value/125))), 1]
+  return[value, Math.abs(Math.round(250 + 220*Math.sin(Math.PI*value/125))), 1];
 });
 
 //var quadtree = d3.quadtree(null, function(d){return d[1]}, function(d){return d[0]})
@@ -106,11 +106,12 @@ function search(quadtree, x0, y0, x3, y3) {
 function showNodes(quadtree, level) {
   var nodes = [];
   quadtree.visit(function(node, x0, y0, x1, y1) {
-    node.x0 = x0, node.y0 = y0;
-    node.x1 = x1, node.y1 = y1;
+    node.x0 = x0;
+    node.y0 = y0;
+    node.x1 = x1;
+    node.y1 = y1;
     //if (node.level == level)
     nodes.push(node);
   });
   return nodes;
 }
-
