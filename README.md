@@ -4,4 +4,4 @@ This is an attempt to create a hierarchical visualization of data using aggregat
 
 To run this:
  - clone this repo
- - python -m SimpleHTTPServer
+ - python -m SimpleHTTPServer (or python3 -m simple.server) 
