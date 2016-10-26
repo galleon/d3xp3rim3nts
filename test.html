@@ -66,7 +66,6 @@ var svg = d3.select("#map").append("svg")
 //    height = +svg.attr("height"),
 //    selected;
 
-console.log(width + " - " + height);
 /*
 var random = Math.random, data = d3.range(2500).map(function() { return [random() * width, random() * height]; });
 */
@@ -74,19 +73,17 @@ var data = d3.range(500).map(function(value){
   return[value, Math.abs(Math.round(250 + 220*Math.sin(Math.PI*value/125))), 1]
 });
 
-console.log(data);
-
 //var quadtree = d3.quadtree(null, function(d){return d[1]}, function(d){return d[0]})
 var quadtree = d3.quadtree()
     .extent([[-1, -1], [width + 1, height + 1]])
     .addAll(data);
 
-quadtree.visitAfter(update);    
+quadtree.visitAfter(update);
 
 var brush = d3.brush().on("brush", brushed);
 
 svg.selectAll(".node")
-    .data(nodes(quadtree, 1))
+    .data(showNodes(quadtree, 1))
     .enter().append("rect")
     .attr("class", "node")
     .attr("x", function(d) { return d.x0; })
@@ -161,7 +158,7 @@ function search(quadtree, x0, y0, x3, y3) {
 }
 
 // Collapse the quadtree into an array of rectangles.
-function nodes(quadtree, level) {
+function showNodes(quadtree, level) {
   var nodes = [];
   quadtree.visit(function(node, x0, y0, x1, y1) {
     node.x0 = x0, node.y0 = y0;
