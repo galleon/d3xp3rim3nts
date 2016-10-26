@@ -115,3 +115,6 @@ function showNodes(quadtree, level) {
   });
   return nodes;
 }
+d3.select('#goal').on('change', function() {
+    showNodes(quadtree, d3.select(this).property('value'));
+});
