@@ -138,7 +138,6 @@ svg.append("g")
     .call(brush)
     .call(brush.move, [[100, 100], [200, 200]]);
 
-<!--
 function brushed() {
   var extent = d3.event.selection;
   point.each(function(d) { d.scanned = d.selected = false; });
@@ -146,7 +145,6 @@ function brushed() {
   point.classed("point--scanned", function(d) { return d.scanned; });
   point.classed("point--selected", function(d) { return d.selected; });
 }
--->
 
 // Find the nodes within the specified rectangle.
 function search(quadtree, x0, y0, x3, y3) {
@@ -168,7 +166,8 @@ function nodes(quadtree, level) {
   quadtree.visit(function(node, x0, y0, x1, y1) {
     node.x0 = x0, node.y0 = y0;
     node.x1 = x1, node.y1 = y1;
-    if (node.level == level) nodes.push(node);
+    //if (node.level == level)
+    nodes.push(node);
   });
   return nodes;
 }
