@@ -61,6 +61,8 @@ function update(node, x0, y0, x1, y1){
   }
 }
 
+var nodeSVGGroup = svg.append("g").attr("id", "nodeGroup").attr("class", "node");
+
 var point = svg.selectAll(".point")
   .data(data)
   .enter().append("circle")
@@ -133,15 +135,18 @@ function nodesAtLevel(quadtree, level) {
 /** Draw a set of nodes */
 function showNodes(nodes) {
   // remove existing <rect>
-  svg.selectAll(".node").remove();
+  nodeSVGGroup.selectAll("rect").remove();
   // add rect matching the requested nodes
-  svg.selectAll(".node").data(nodes)
+  nodeSVGGroup.selectAll("rect").data(nodes)
       .enter().append("rect")
-      .attr("class", "node")
       .attr("x", function(d) { return d.x0; })
       .attr("y", function(d) { return d.y0; })
       .attr("width", function(d) { return d.y1 - d.y0; })
-      .attr("height", function(d) { return d.x1 - d.x0; });
+      .attr("height", function(d) { return d.x1 - d.x0; })
+      .attr("style", function(node) {
+          var lightness  = 100 * Math.log(node.data[2]) / Math.log(500);
+          return "fill:hsla(180, 100%, " + lightness + "%, 128)";
+      });
 }
 
 var goalRangeInput = d3.select('#goal');
