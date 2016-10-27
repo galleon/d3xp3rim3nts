@@ -96,6 +96,25 @@ function search(quadtree, x0, y0, x3, y3) {
   });
 }
 
+/** Compute the depth of quadtree */
+function treeDepth(quadtree) {
+  var currentFront = [quadtree.root()];
+  var nextFront = [];
+  var currentLevel = 0;
+  while(currentFront.length > 0) {
+    for(var i = 0; i < currentFront.length; i++) {
+      for(var j = 0; j < currentFront[i].length; j++) {
+        if(currentFront[i][j])
+          nextFront.push(currentFront[i][j]);
+      }
+    }
+    currentFront = nextFront;
+    nextFront = [];
+    currentLevel ++;
+  }
+  return currentLevel - 1;
+}
+
 /** Return an array with the nodes at a given level */
 function nodesAtLevel(quadtree, level) {
   var currentFront = [quadtree.root()];
@@ -125,6 +144,12 @@ function showNodesAtLevel(quadtree, level) {
       .attr("width", function(d) { return d.y1 - d.y0; })
       .attr("height", function(d) { return d.x1 - d.x0; });
 }
-d3.select('#goal').on('change', function() {
-  showNodesAtLevel(quadtree, d3.select(this).property('value'));
+var goalRangeInput = d3.select('#goal');
+var goalValueSpan = d3.select('#goal-value');
+console.log(goalValueSpan);
+goalRangeInput.attr("max", treeDepth(quadtree));
+goalRangeInput.on('change', function() {
+  var v = d3.select(this).property('value');
+  showNodesAtLevel(quadtree, v);
+  goalValueSpan.text(v);
 });
