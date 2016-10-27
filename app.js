@@ -123,7 +123,7 @@ function treeDepth(quadtree) {
 function nodesAtLevel(quadtree, level) {
   var front = [quadtree.root()];
   var currentLevel = 0;
-  while(currentLevel < level && front.length > 0) {
+  while(currentLevel <= level && front.length > 0) {
     front = nextFront(front);
     currentLevel ++;
   }
@@ -131,8 +131,9 @@ function nodesAtLevel(quadtree, level) {
 }
 
 function showNodesAtLevel(quadtree, level) {
-  svg.selectAll(".node")
-      .data(nodesAtLevel(quadtree, level))
+  var nodes = svg.selectAll(".node");
+  nodes.remove("rect");
+  nodes.data(nodesAtLevel(quadtree, level))
       .enter().append("rect")
       .attr("class", "node")
       .attr("x", function(d) { return d.x0; })
