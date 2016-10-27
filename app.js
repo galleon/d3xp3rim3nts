@@ -130,10 +130,12 @@ function nodesAtLevel(quadtree, level) {
   return front;
 }
 
-function showNodesAtLevel(quadtree, level) {
-  var nodes = svg.selectAll(".node");
-  nodes.remove("rect");
-  nodes.data(nodesAtLevel(quadtree, level))
+/** Draw a set of nodes */
+function showNodes(nodes) {
+  // remove existing <rect>
+  svg.selectAll(".node").remove();
+  // add rect matching the requested nodes
+  svg.selectAll(".node").data(nodes)
       .enter().append("rect")
       .attr("class", "node")
       .attr("x", function(d) { return d.x0; })
@@ -141,12 +143,12 @@ function showNodesAtLevel(quadtree, level) {
       .attr("width", function(d) { return d.y1 - d.y0; })
       .attr("height", function(d) { return d.x1 - d.x0; });
 }
+
 var goalRangeInput = d3.select('#goal');
 var goalValueSpan = d3.select('#goal-value');
-
 goalRangeInput.attr("max", treeDepth(quadtree));
 goalRangeInput.on('change', function() {
-  var v = d3.select(this).property('value');
-  showNodesAtLevel(quadtree, v);
-  goalValueSpan.text(v);
+  var level = d3.select(this).property('value');
+  showNodes(nodesAtLevel(quadtree, level));
+  goalValueSpan.text(level);
 });
