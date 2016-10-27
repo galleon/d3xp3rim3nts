@@ -27,43 +27,37 @@ quadtree.visitAfter(update);
 
 var brush = d3.brush().on("brush", brushed);
 
-svg.selectAll(".node")
-    .data(showNodes(quadtree, 1))
-    .enter().append("rect")
-    .attr("class", "node")
-    .attr("x", function(d) { return d.x0; })
-    .attr("y", function(d) { return d.y0; })
-    .attr("width", function(d) { return d.y1 - d.y0; })
-    .attr("height", function(d) { return d.x1 - d.x0; });
-
 // var sum = times.reduce(function(a, b) {return a + b;});
 // var avg = sum / times.length;
 
 function update(node, x0, y0, x1, y1){
-  var new_data;
+  var newData;
   var count = 0;
-
+  node.x0 = x0;
+  node.y0 = y0;
+  node.x1 = x1;
+  node.y1 = y1;
   // loop on children
   for(var i = 0; i < 4; i++) {
     // Will be false for leaves as they are not array
     if(node[i]) {
       count ++;
       // lazy init of new_data
-      if(!new_data)
-        new_data = new Array(node[i].data.length).fill(0);
+      if(!newData)
+        newData = new Array(node[i].data.length).fill(0);
 
       // accumulate children data (x, y, value)
-      for(var j = 0; j < new_data.length; j++) {
-        new_data[j] += node[i].data[j];
+      for(var j = 0; j < newData.length; j++) {
+        newData[j] += node[i].data[j];
       }
     }
   }
   if(count) {
     // assuming that data[0] and data[1] are the coordinates
     // of the points, so we compute the mean
-    new_data[0] /= count;
-    new_data[1] /= count;
-    node.data = new_data;
+    newData[0] /= count;
+    newData[1] /= count;
+    node.data = newData;
   }
 }
 
@@ -102,19 +96,35 @@ function search(quadtree, x0, y0, x3, y3) {
   });
 }
 
-// Collapse the quadtree into an array of rectangles.
-function showNodes(quadtree, level) {
-  var nodes = [];
-  quadtree.visit(function(node, x0, y0, x1, y1) {
-    node.x0 = x0;
-    node.y0 = y0;
-    node.x1 = x1;
-    node.y1 = y1;
-    //if (node.level == level)
-    nodes.push(node);
-  });
-  return nodes;
+/** Return an array with the nodes at a given level */
+function nodesAtLevel(quadtree, level) {
+  var currentFront = [quadtree.root()];
+  var nextFront = [];
+  var currentLevel = 0;
+  while(currentLevel < level && currentFront.length > 0) {
+    for(var i = 0; i < currentFront.length; i++) {
+      for(var j = 0; j < currentFront[i].length; j++) {
+        if(currentFront[i][j])
+          nextFront.push(currentFront[i][j]);
+      }
+    }
+    currentFront = nextFront;
+    nextFront = [];
+    currentLevel ++;
+  }
+  return currentFront;
+}
+
+function showNodesAtLevel(quadtree, level) {
+  svg.selectAll(".node")
+      .data(nodesAtLevel(quadtree, level))
+      .enter().append("rect")
+      .attr("class", "node")
+      .attr("x", function(d) { return d.x0; })
+      .attr("y", function(d) { return d.y0; })
+      .attr("width", function(d) { return d.y1 - d.y0; })
+      .attr("height", function(d) { return d.x1 - d.x0; });
 }
 d3.select('#goal').on('change', function() {
-    showNodes(quadtree, d3.select(this).property('value'));
+  showNodesAtLevel(quadtree, d3.select(this).property('value'));
 });
