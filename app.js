@@ -96,20 +96,24 @@ function search(quadtree, x0, y0, x3, y3) {
   });
 }
 
+/** Given a front in the quadtree, return the child front */
+function nextFront(front) {
+  toReturn = [];
+  for(var i = 0; i < front.length; i++) {
+    for(var j = 0; j < front[i].length; j++) {
+      if(front[i][j])
+        toReturn.push(front[i][j]);
+    }
+  }
+  return toReturn;
+}
+
 /** Compute the depth of quadtree */
 function treeDepth(quadtree) {
-  var currentFront = [quadtree.root()];
-  var nextFront = [];
+  var front = [quadtree.root()];
   var currentLevel = 0;
-  while(currentFront.length > 0) {
-    for(var i = 0; i < currentFront.length; i++) {
-      for(var j = 0; j < currentFront[i].length; j++) {
-        if(currentFront[i][j])
-          nextFront.push(currentFront[i][j]);
-      }
-    }
-    currentFront = nextFront;
-    nextFront = [];
+  while(front.length > 0) {
+    front = nextFront(front);
     currentLevel ++;
   }
   return currentLevel - 1;
@@ -117,21 +121,13 @@ function treeDepth(quadtree) {
 
 /** Return an array with the nodes at a given level */
 function nodesAtLevel(quadtree, level) {
-  var currentFront = [quadtree.root()];
-  var nextFront = [];
+  var front = [quadtree.root()];
   var currentLevel = 0;
-  while(currentLevel < level && currentFront.length > 0) {
-    for(var i = 0; i < currentFront.length; i++) {
-      for(var j = 0; j < currentFront[i].length; j++) {
-        if(currentFront[i][j])
-          nextFront.push(currentFront[i][j]);
-      }
-    }
-    currentFront = nextFront;
-    nextFront = [];
+  while(currentLevel < level && front.length > 0) {
+    front = nextFront(front);
     currentLevel ++;
   }
-  return currentFront;
+  return front;
 }
 
 function showNodesAtLevel(quadtree, level) {
