@@ -14,8 +14,10 @@ var svg = d3.select("#map").append("svg")
 /*
 var random = Math.random, data = d3.range(2500).map(function() { return [random() * width, random() * height]; });
 */
-var data = d3.range(500).map(function(value){
-  return[value, Math.abs(Math.round(250 + 220*Math.sin(Math.PI*value/125))), 1];
+var NUMBER_OF_POINTS = 100000;
+var data = d3.range(NUMBER_OF_POINTS).map(function(value){
+  return[value * 960 / NUMBER_OF_POINTS, Math.abs(Math.round(250 + 220 *
+    Math.sin(6 * Math.PI * value / NUMBER_OF_POINTS))), 1];
 });
 
 //var quadtree = d3.quadtree(null, function(d){return d[1]}, function(d){return d[0]})
@@ -144,7 +146,7 @@ function showNodes(nodes) {
       .attr("width", function(d) { return d.y1 - d.y0; })
       .attr("height", function(d) { return d.x1 - d.x0; })
       .attr("style", function(node) {
-          var lightness  = 100 * Math.log(node.data[2]) / Math.log(500);
+          var lightness  = 100 * Math.log(node.data[2]) / Math.log(data.length);
           return "fill:hsla(180, 100%, " + lightness + "%, 128)";
       });
 }
