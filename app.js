@@ -90,7 +90,7 @@ function search(quadtree, x0, y0, x3, y3) {
         var d = node.data;
         d.scanned = true;
         d.selected = (d[0] >= x0) && (d[0] < x3) && (d[1] >= y0) && (d[1] < y3);
-      } while (node = node.next);
+      } while ((node = node.next));
     }
     return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
   });
@@ -143,7 +143,7 @@ function showNodesAtLevel(quadtree, level) {
 }
 var goalRangeInput = d3.select('#goal');
 var goalValueSpan = d3.select('#goal-value');
-console.log(goalValueSpan);
+
 goalRangeInput.attr("max", treeDepth(quadtree));
 goalRangeInput.on('change', function() {
   var v = d3.select(this).property('value');
