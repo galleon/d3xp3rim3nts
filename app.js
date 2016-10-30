@@ -88,6 +88,7 @@ function update(node, x0, y0, x1, y1){
 }
 
 var nodeSVGGroup = svg.append("g").attr("id", "nodeGroup").attr("class", "node");
+var barbSVGGroup = svg.append("g").attr("id", "barbGroup").attr("class", "wind-arrow");
 
 var point = svg.selectAll(".point")
   .data(data)
@@ -178,12 +179,11 @@ function showNodes(nodes) {
 }
 
 function showBarbs(nodes) {
-  nodeSVGGroup.selectAll(".barb").remove();
+  barbSVGGroup.selectAll("path").remove();
 
-  var selection = nodeSVGGroup.selectAll(".barb").data(nodes);
+  var selection = barbSVGGroup.selectAll("path").data(nodes);
 
   selection.enter()
-    .append('g')
     .each(function(node, i) {
       var vx = node.data[2];
       var vy = node.data[3];
