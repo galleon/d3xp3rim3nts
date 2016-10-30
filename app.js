@@ -19,8 +19,7 @@ var NUMBER_OF_POINTS = 10000;
 // sinus function
 
 var data = d3.range(NUMBER_OF_POINTS).map(function(value){
-  return[value * 960 / NUMBER_OF_POINTS, Math.abs(Math.round(250 + 220 *
-    Math.sin(6 * Math.PI * value / NUMBER_OF_POINTS))), 10*Math.random(), 10*Math.random()];
+  return[value * 960 / NUMBER_OF_POINTS, Math.abs(Math.round(250 + 220 * Math.sin(6 * Math.PI * value / NUMBER_OF_POINTS))), 30, 30*Math.sin(6 * Math.PI * value / NUMBER_OF_POINTS)];
 });
 
 // lorentz
