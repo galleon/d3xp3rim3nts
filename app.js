@@ -1,60 +1,80 @@
-var margin = {top: 50, right: 30, bottom: 30, left: 40},
-    height = 500 - margin.top -  margin.bottom,
-    width = 960- margin.right - margin.left,
-    goal = 0.33, selected;
-
+var padding = 10,
+    height  = 500 - 2 * padding,
+    width   = 960 - 2 * padding,
+    selected;
 
 var svg = d3.select("#map").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.bottom + margin.top);
-//    width = +svg.attr("width"),
-//    height = +svg.attr("height"),
-//    selected;
+      .attr("width" , width  + 2 * padding)
+      .attr("height", height + 2 * padding);
 
-/*
-var random = Math.random, data = d3.range(2500).map(function() { return [random() * width, random() * height]; });
-*/
 var NUMBER_OF_POINTS = 10000;
+
+var functionValue = d3.select('input[name="function-stack"]:checked').property("value");
+
+console.log('>'+functionValue+'<');
+
 //
 // sinus function
+if (functionValue === 'sinus') {
+  data = d3.range(NUMBER_OF_POINTS).map(function(value){
+    var x = 6.0 * Math.PI * value / NUMBER_OF_POINTS;
+    return [x, Math.sin(x), 30.0, 30.0*Math.cos(x)];
+  });
+}
+//
+// lorenz function
+if (functionValue == 'lorenz') {
+  var x = 0.1;
+  var y = 0.0;
+  var z = 0.0;
+  var dt = 0.01;
+  var sigma = 10.0;
+  var rho = 28.0;
+  var beta = 8.0 / 3.0;
 
-var data = d3.range(NUMBER_OF_POINTS).map(function(value){
-  return[value * 960 / NUMBER_OF_POINTS, Math.abs(Math.round(250 + 220 *
-    Math.sin(6 * Math.PI * value / NUMBER_OF_POINTS))), 10*Math.random(), 10*Math.random()];
-});
+  data = d3.range(NUMBER_OF_POINTS).map(function(value){
+    var dx = dt * sigma * (y - x);
+    var dy = dt * (x * (rho - z) - y);
+    var dz = dt * (x * y - beta * z);
+    x = x + dx;
+    y = y + dy;
+    z = z + dz;
+    return [x, y, dx, dy];
+  });
+}
 
-// lorentz
-/*
-var x = 0.1;
-var y = 0.0;
-var z = 0.0;
-var dt = 0.01;
-var sigma = 10.0;
-var rho = 28.0;
-var beta = 8.0 / 3.0;
+var xmin = d3.min(data, function(d) { return d[0]; });
+var xmax = d3.max(data, function(d) { return d[0]; });
+var ymin = d3.min(data, function(d) { return d[1]; });
+var ymax = d3.max(data, function(d) { return d[1]; });
 
-var data = d3.range(NUMBER_OF_POINTS).map(function(value){
-  var dx = dt * sigma * (y - x);
-  var dy = dt * (x * (rho - z) - y);
-  var dz = dt * (x * y - beta * z);
-  x = x + dx;
-  y = y + dy;
-  z = z + dz;
-  return [x, y, dx, dy];
-});
-*/
+var xScale = d3.scaleLinear()
+               .domain([xmin, xmax])
+               .range([padding, width - padding]);
 
-//var quadtree = d3.quadtree(null, function(d){return d[1]}, function(d){return d[0]})
-var quadtree = d3.quadtree()
-    .extent([[-1, -1], [width + 1, height + 1]])
-    .addAll(data);
+var yScale = d3.scaleLinear()
+               .domain([ymin, ymax])
+               .range([height - padding, padding]);
+
+var vScale = d3.scaleLinear()
+               .domain([d3.min(data, function(d) { return Math.sqrt(d[2]*d[2] + d[3]*d[3]); }),
+                        d3.max(data, function(d) { return Math.sqrt(d[2]*d[2] + d[3]*d[3]); })])
+               .range([0, 55]);                     
+
+console.log('xmin: ' + xmin + ' -> ' + xScale(xmin));
+console.log('xmax: ' + xmax + ' -> ' + xScale(xmax));
+console.log('ymin: ' + ymin + ' -> ' + yScale(ymin));
+console.log('ymax: ' + ymax + ' -> ' + yScale(ymax));
+
+// .extent([[xmin, ymin], [xmax, ymax]])
+
+var quadtree = d3.quadtree().addAll(data);
+
+console.log(quadtree.extent());
 
 quadtree.visitAfter(update);
 
 var brush = d3.brush().on("brush", brushed);
-
-// var sum = times.reduce(function(a, b) {return a + b;});
-// var avg = sum / times.length;
 
 function update(node, x0, y0, x1, y1){
   var newData;
@@ -89,13 +109,14 @@ function update(node, x0, y0, x1, y1){
 }
 
 var nodeSVGGroup = svg.append("g").attr("id", "nodeGroup").attr("class", "node");
+var barbSVGGroup = svg.append("g").attr("id", "barbGroup").attr("class", "wind-arrow");
 
 var point = svg.selectAll(".point")
   .data(data)
   .enter().append("circle")
     .attr("class", "point")
-    .attr("cx", function(d) { return d[0]; })
-    .attr("cy", function(d) { return d[1]; })
+    .attr("cx", function(d) { return xScale(d[0]); })
+    .attr("cy", function(d) { return yScale(d[1]); })
     .attr("r", 2);
 
 svg.append("g")
@@ -106,8 +127,10 @@ svg.append("g")
 function brushed() {
   var extent = d3.event.selection;
   point.each(function(d) { d.scanned = d.selected = false; });
-  search(quadtree, extent[0][0], extent[0][1], extent[1][0], extent[1][1]);
-  point.classed("point--scanned", function(d) { return d.scanned; });
+
+  search(quadtree, xScale.invert(extent[0][0]), yScale.invert(extent[1][1]), xScale.invert(extent[1][0]), yScale.invert(extent[0][1]));
+
+  point.classed("point--scanned" , function(d) { return d.scanned;  });
   point.classed("point--selected", function(d) { return d.selected; });
 }
 
@@ -118,10 +141,11 @@ function search(quadtree, x0, y0, x3, y3) {
       do {
         var d = node.data;
         d.scanned = true;
-        d.selected = (d[0] >= x0) && (d[0] < x3) && (d[1] >= y0) && (d[1] < y3);
+
+        d.selected = (d[0] > x0) && (d[0] <= x3) && (d[1] > y0) && (d[1] <= y3);
       } while ((node = node.next));
     }
-    return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
+    return x2 <= x0 || y2 <= y0 || x1 > x3 || y1 > y3;
   });
 }
 
@@ -168,10 +192,10 @@ function showNodes(nodes) {
 
   selection.enter()
     .append("rect")
-    .attr("x", function(node) { return node.x0; })
-    .attr("y", function(node) { return node.y0; })
-    .attr("width", function(node) { return node.y1 - node.y0; })
-    .attr("height", function(node) { return node.x1 - node.x0; })
+    .attr("x", function(node) { return xScale(node.x0); })
+    .attr("y", function(node) { return yScale(node.y1); })
+    .attr("width" , function(node) { return xScale(node.x1) - xScale(node.x0); })
+    .attr("height", function(node) { return yScale(node.y0) - yScale(node.y1); })
     .attr("style", function(node) {
       var lightness  = 100 - 100 * Math.log(node.data[2]) / Math.log(data.length);
       return "fill:hsla(180, 100%, " + lightness + "%, 128)";
@@ -179,24 +203,23 @@ function showNodes(nodes) {
 }
 
 function showBarbs(nodes) {
-  nodeSVGGroup.selectAll(".barb").remove();
+  barbSVGGroup.selectAll("path").remove();
 
-  var selection = nodeSVGGroup.selectAll(".barb").data(nodes);
+  var selection = barbSVGGroup.selectAll("path").data(nodes);
 
   selection.enter()
-    .append('g')
     .each(function(node, i) {
       var vx = node.data[2];
       var vy = node.data[3];
 
-      console.log('vx: '+ vx + ' vy:' + vy);
+      var v = Math.sqrt(vx*vx + vy*vy);
+      //vx /= vScale(v);
+      //vy /= vScale(v);
   
       var speed = Math.sqrt(vx*vx + vy*vy);
       var angle = Math.atan2(-vy, vx) * (180/Math.PI);
 
-      console.log('speed: ' + speed + ', angle: ' + angle);
-
-      var index = 0, i;
+      var index = 0;
 
       var ten   = 0;
       var five  = 0;
@@ -226,43 +249,48 @@ function showBarbs(nodes) {
         five -= ten * 2;
       }
 
-      var j;
+      var j, k;
 
       // Draw first the triangles
-      for (i = 0; i < fifty; i++) {
-        j = index + 2 * i;
-        path += "M" + j + " 0 L" + (j + 1) + " 2 L" + j + " 2 L" + j + " 0 ";
+      for (j = 0; j < fifty; j++) {
+        k = index + 2 * j;
+        path += "M" + k + " 0 L" + (k + 1) + " 2 L" + k + " 2 L" + k + " 0 ";
       }
       if (fifty > 0) {
         index += 2 * (fifty - 0.5);
       }
 
       // Draw the long segments
-      for (i = 0; i < ten; i++) {
-        j = index + i;
-        path += "M" + j + " 0 L" + (j + 1) + " 2 ";
+      for (j = 0; j < ten; j++) {
+        k = index + j;
+        path += "M" + k + " 0 L" + (k + 1) + " 2 ";
       }
       index += ten;
 
       // Draw the short segments
-      for (i = 0; i < five; i++) {
-        j = index + i;
-        path += "M" + (j + 0.5) + " 1 L" + (j + 1) + " 2 ";
+      for (j = 0; j < five; j++) {
+        k = index + j;
+        path += "M" + (k + 0.5) + " 1 L" + (k + 1) + " 2 ";
       }
 
       path += "Z";
 
-      var tx = 0.5*(node.x0 + node.x1);
-      var ty = 0.5*(node.y1 + node.y0);
+      var tx = 0.5*(xScale(node.x0) + xScale(node.x1));
+      var ty = 0.5*(yScale(node.y1) + yScale(node.y0));
 
-      var scale = (node.x1 - node.x0) / 16;
+      var scalex = xScale(node.x1) - xScale(node.x0);
+      var scaley = yScale(node.y0) - yScale(node.y1);
+
+      console.log('scalex ' + scalex);
+      console.log('scaley ' + scaley);
+
+      var scale = Math.min(scalex, scaley) / 16;
 
       d3.select(this).append('path')
-        .attr('d', function(d){console.log(d); return path;})
+        .attr('d', function(d){ return path; })
         .attr('transform', 'translate(' + tx + ', ' + ty + ') scale(' + scale + ') rotate(' + angle + ' ' + 0 + ' ' + 0 + ')  translate(-4, -1)')
         .attr('vector-effect', 'non-scaling-stroke');
-  })
-  .attr('class', 'wind-arrow');
+  });
 }
 
 var goalRangeInput = d3.select('#goal');
