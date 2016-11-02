@@ -260,8 +260,7 @@ function showBarbs(nodes) {
         .attr('d', function(d){console.log(d); return path;})
         .attr('transform', 'translate(' + tx + ', ' + ty + ') scale(' + scale + ') rotate(' + angle + ' ' + 0 + ' ' + 0 + ')  translate(-4, -1)')
         .attr('vector-effect', 'non-scaling-stroke');
-  })
-  .attr('class', 'wind-arrow');
+  });
 }
 
 var goalRangeInput = d3.select('#goal');
